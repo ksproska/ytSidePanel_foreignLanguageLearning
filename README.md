@@ -1,5 +1,5 @@
-# YouTube side panel for learning foreign language
-Usage:
+# Side panel displaying YouTube video's subtitles for facilitating easier foreign language learning
+[Script](tampermonkey_script.js) usage summary:
 
 ![](images/yt_panel.gif)
 
@@ -15,7 +15,7 @@ Tampermonkey is available as an extension for example for [Chrome](https://chrom
 Install it to proceed.
 
 ### Add script to tampermonkey
-After extension is installed go to extension and click `Create a new script...`.
+After installation go to tampermonkey extension and click `Create a new script...`.
 
 ![](images/create_script.png)
 
@@ -24,9 +24,23 @@ and paste it instead of the template.
 
 ![](images/script_template.png)
 
+Save changes by clicking `ctrl`+`s`.
+
 The script should be available in `Installed Userscripts`:
 
 ![](images/user_scripts_list.png)
 
-### Enjoy
+### Enjoy :)
 Find a YouTube video you want to watch and refresh page.
+
+#### Lookup unknown vocabulary and save the translations:
+
+![](images/add_translations.png)
+
+#### Follow the captions as the video plays:
+
+![](images/follow_subtitles.png)
+
+#### And finally copy the collected translations to learn the vocabulary:
+
+![](images/copy_translations.png)
