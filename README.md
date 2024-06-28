@@ -3,6 +3,22 @@
 
 ![](images/yt_panel.gif)
 
+## How to use the script - functionalities
+After installing the script (see [How to run the script](#how-to-run-the-script)) find a YouTube video you want to watch and refresh page.
+
+#### Lookup unknown vocabulary and save the translations:
+
+![](images/add_translations.png)
+
+#### Follow the captions as the video plays:
+
+![](images/follow_subtitles.png)
+
+#### And finally copy the collected translations to learn the vocabulary:
+
+![](images/copy_translations.png)
+
+
 ## How to run the script
 ### Install tampermonkey extension
 [Tampermonkey](https://www.tampermonkey.net/) is a popular userscript manager that allows you to enhance and modify the functionality of web browsers 
@@ -29,18 +45,3 @@ Save changes by clicking `ctrl`+`s`.
 The script should be available in `Installed Userscripts`:
 
 ![](images/user_scripts_list.png)
-
-### Enjoy :)
-Find a YouTube video you want to watch and refresh page.
-
-#### Lookup unknown vocabulary and save the translations:
-
-![](images/add_translations.png)
-
-#### Follow the captions as the video plays:
-
-![](images/follow_subtitles.png)
-
-#### And finally copy the collected translations to learn the vocabulary:
-
-![](images/copy_translations.png)
