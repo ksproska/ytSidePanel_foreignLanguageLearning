@@ -3,7 +3,7 @@
 
 ![](images/yt_panel.gif)
 
-## How to use script
+## How to run the script
 ### Install tampermonkey extension
 [Tampermonkey](https://www.tampermonkey.net/) is a popular userscript manager that allows you to enhance and modify the functionality of web browsers 
 like Chrome, Firefox, Safari, and others. 
