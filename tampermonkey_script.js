@@ -254,5 +254,15 @@
 
         updateDictionaryDisplay();
         addHoverEffectToCaptions();
+
+        document.getElementById('captionPanel').addEventListener('copy', function (event) {
+            event.preventDefault();
+            const selectedText = document.getSelection().toString();
+            document.getElementById('original').value = selectedText;
+            if (event.clipboardData) {
+                event.clipboardData.setData('text/plain', selectedText);
+            }
+        });
     });
+
 })();
