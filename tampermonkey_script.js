@@ -163,7 +163,7 @@
         captions.forEach(caption => {
             let captionHTML = caption.innerHTML;
             for (const [original, translations] of Object.entries(map)) {
-                const regex = new RegExp(`\\b${original}\\b`, 'gi');
+                const regex = new RegExp(`(?<![\\wß])${original}(?![\\wß])`, 'gi');
                 captionHTML = captionHTML.replace(regex, match => {
                     const translation = translations.join(', ');
                     return `<span class="translation-hover">${match}<span class="translation-tooltip">${translation}</span></span>`;
