@@ -78,7 +78,7 @@
             position: fixed;
             bottom: 0px;
             right: 0px;
-            width: 500px;
+            width: 400px;
             background-color: #111;
             color: white;
             padding-left: 20px;
@@ -89,6 +89,18 @@
             overflow-y: auto;
             height: 190px;
             white-space: pre-wrap;
+        }
+        #timer {
+            position: fixed;
+            bottom: 0px;
+            right: 400px;
+            width: 100px;
+            background-color: #111;
+            color: #f00;
+            text-align: center;
+            font-size: 20px;
+            line-height: 190px;
+            font-family: 'YouTube Sans';
         }
         .translation-tooltip {
             position: absolute;
@@ -128,6 +140,11 @@
     const dictionaryDisplay = document.createElement('div');
     dictionaryDisplay.id = 'dictionaryDisplay';
     panel.appendChild(dictionaryDisplay);
+
+    const timer = document.createElement('div');
+    timer.id = 'timer';
+    timer.textContent = '00:00';
+    panel.appendChild(timer);
 
     document.body.appendChild(panel);
 
@@ -213,7 +230,19 @@
         }
     }
 
+    let startTime;
+    function startTimer() {
+        startTime = Date.now();
+        setInterval(() => {
+            let elapsedTime = Date.now() - startTime;
+            let minutes = Math.floor((elapsedTime / 1000 / 60) % 60);
+            let seconds = Math.floor((elapsedTime / 1000) % 60);
+            timer.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }, 1000);
+    }
+
     window.addEventListener('load', function () {
+        startTimer();
         try {
             const playerResponse = window.ytInitialPlayerResponse;
 
