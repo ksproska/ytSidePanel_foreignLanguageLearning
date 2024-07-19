@@ -102,6 +102,25 @@
             line-height: 190px;
             font-family: 'YouTube Sans';
         }
+        #timerButtons {
+            position: fixed;
+            bottom: 0px;
+            right: 400px;
+            width: 100px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #timerButtons button {
+            width: 100%;
+            padding: 10px 0;
+            margin-top: 5px;
+            background-color: #333;
+            color: var(--yt-spec-static-overlay-text-primary, white);
+            border-radius: var(--yt-button-border-radius, 2px);
+            border: none;
+            cursor: pointer;
+        }
         .translation-tooltip {
             position: absolute;
             transform: translateX(-50px) translateY(25px);
@@ -145,6 +164,14 @@
     timer.id = 'timer';
     timer.textContent = '00:00';
     panel.appendChild(timer);
+
+    const timerButtons = document.createElement('div');
+    timerButtons.id = 'timerButtons';
+    timerButtons.innerHTML = `
+        <button id="stopTimer">Stop</button>
+        <button id="addToCalendar">Add to iCal</button>
+    `;
+    panel.appendChild(timerButtons);
 
     document.body.appendChild(panel);
 
@@ -231,18 +258,23 @@
     }
 
     let startTime;
-    function startTimer() {
-        startTime = Date.now();
-        setInterval(() => {
-            let elapsedTime = Date.now() - startTime;
-            let minutes = Math.floor((elapsedTime / 1000 / 60) % 60);
-            let seconds = Math.floor((elapsedTime / 1000) % 60);
-            timer.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        }, 1000);
-    }
+    let timerInterval;
+    startTime = Date.now();
+    timerInterval = setInterval(() => {
+        let elapsedTime = Date.now() - startTime;
+        let minutes = Math.floor((elapsedTime / 1000 / 60) % 60);
+        let seconds = Math.floor((elapsedTime / 1000) % 60);
+        timer.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }, 1000);
+
+    document.getElementById('stopTimer').addEventListener('click', function() {
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+    });
 
     window.addEventListener('load', function () {
-        startTimer();
         try {
             const playerResponse = window.ytInitialPlayerResponse;
 
