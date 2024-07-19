@@ -326,4 +326,50 @@
         });
     });
 
+    function addEventToCalendar(duration) {
+        const now = new Date();
+        const endTime = now.toISOString().replace(/-|:|\.\d\d\d/g,"");
+        now.setSeconds(now.getSeconds() - duration);
+        const startTime = now.toISOString().replace(/-|:|\.\d\d\d/g,"");
+
+        const title = `YouTube - German Practice - ${Math.floor(duration / 60)} min`;
+        const description = 'YouTube - German language practice session.';
+        const location = 'Home';
+        const calendarEvent = [
+            'BEGIN:VCALENDAR',
+            'VERSION:2.0',
+            'BEGIN:VEVENT',
+            'URL;VALUE=URI:https://www.example.com',
+            `DTSTART:${startTime}`,
+            `DTEND:${endTime}`,
+            `SUMMARY:${title}`,
+            `DESCRIPTION:${description}`,
+            `LOCATION:${location}`,
+            'STATUS:CONFIRMED',
+            'SEQUENCE:3',
+            'BEGIN:VALARM',
+            'TRIGGER:-PT10M',
+            'REPEAT:2',
+            'DURATION:PT15M',
+            'ACTION:DISPLAY',
+            'DESCRIPTION:Reminder',
+            'END:VALARM',
+            'END:VEVENT',
+            'END:VCALENDAR'
+        ].join('\r\n');
+
+        const blob = new Blob([calendarEvent], {type: 'text/calendar;charset=utf-8'});
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        const formattedDate = now.toISOString().slice(0, 19).replace(/-|:|T/g, "_");
+        link.download = `german-practice-yt_${formattedDate}.ics`;
+        link.click();
+        URL.revokeObjectURL(url);
+    }
+
+    document.getElementById('addToCalendar').addEventListener('click', function() {
+        const duration = (Date.now() - startTime) / 1000;
+        addEventToCalendar(duration);
+    });
 })();
