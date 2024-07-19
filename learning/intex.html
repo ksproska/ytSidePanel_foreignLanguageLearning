@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Translation Quiz</title>
+    <style>
+        .container {
+            width: 30%;
+            margin: 0 auto;
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        textarea {
+            width: 100%;
+            height: 80px;
+            box-sizing: border-box;
+            text-align: center;
+            margin-bottom: 10px;
+            resize: none;
+            background-color: transparent;
+            border: none;
+            outline: none;
+            font-size: 1.9em;
+        }
+        button {
+            width: 100%;
+            padding: 15px 0;
+            box-sizing: border-box;
+            display: block;
+            margin-bottom: 5px;
+            background-color: transparent;
+            border: 1px solid #ccc;
+            color: #333;
+            cursor: pointer;
+            font-size: 1.9em;
+        }
+        button:hover {
+            background-color: #f0f0f0;
+        }
+        .incorrect {
+            background-color: #f8d7da;
+        }
+        .progress-container {
+            width: 100%;
+            height: 20px;
+            background-color: #ddd;
+            margin: 20px 0;
+            position: relative;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            text-align: center;
+            line-height: 20px;
+            color: white;
+            position: absolute;
+        }
+        .correct {
+            background-color: #4CAF50;
+            width: 0%;
+        }
+        .incorrect-progress {
+            background-color: #f44336;
+            width: 0%;
+            right: 0;
+        }
+        .timer {
+            font-size: 1.5em;
+            margin-top: 20px;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <br>
+    <br>
+    <br>
+    <textarea id="wordDisplay" readonly></textarea>
+
+    <button id="button1" onclick="selectTranslation(0)">Button 1</button>
+    <button id="button2" onclick="selectTranslation(1)">Button 2</button>
+    <button id="button3" onclick="selectTranslation(2)">Button 3</button>
+    <button id="button4" onclick="selectTranslation(3)">Button 4</button>
+
+    <div class="progress-container">
+        <div class="progress-bar correct" id="correctBar"></div>
+        <div class="progress-bar incorrect-progress" id="incorrectBar"></div>
+    </div>
+
+    <div class="timer" id="timer">Time Elapsed: 00:00</div>
+
+    <br>
+    <table id="resultsTable">
+        <tbody>
+        <!-- Results will be inserted here -->
+        </tbody>
+    </table>
+    <br>
+    <button id="addCalendarEvent">Add to Calendar</button>
+</div>
+
+<script>
+    const translationsMap = JSON.parse(localStorage.getItem('translationsMap'));
+    let keys = Object.keys(translationsMap);
+    shuffleArray(keys);
+    let currentKeyIndex = 0;
+    let correctCount = 0;
+    let incorrectCount = 0;
+    let timerInterval;
+    let secondsElapsed = 0;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        startTimer();
+        updateProgressBars();
+        nextWord();
+        document.addEventListener('keydown', handleArrowKeys);
+    });
+
+    function startTimer() {
+        timerInterval = setInterval(function () {
+            secondsElapsed++;
+            const minutes = Math.floor(secondsElapsed / 60);
+            const seconds = secondsElapsed % 60;
+            const formattedMinutes = minutes < 10 ? "0" + minutes : minutes;
+            const formattedSeconds = seconds < 10 ? "0" + seconds : seconds;
+
+            document.getElementById('timer').textContent = 'Time Elapsed: ' + formattedMinutes + ":" + formattedSeconds;
+
+            if (currentKeyIndex >= keys.length) {
+                clearInterval(timerInterval);
+            }
+        }, 1000);
+    }
+
+    function nextWord() {
+        if (currentKeyIndex < keys.length) {
+            let word = keys[currentKeyIndex];
+            document.getElementById('wordDisplay').value = word;
+            setupButtons(word);
+            speak(word, 'de-DE');
+        } else {
+            document.getElementById('wordDisplay').value = "Quiz Completed!";
+            document.querySelectorAll('button').forEach(button => {
+                button.disabled = true;
+                button.classList.add('hidden');
+            });
+            clearInterval(timerInterval);
+        }
+    }
+
+    function setupButtons(word) {
+        let correctTranslation = translationsMap[word];
+        let otherWords = keys.filter(k => k !== word).map(k => translationsMap[k][0]);
+        let options = [correctTranslation[0], ...shuffleArray(otherWords).slice(0, 3)];
+        shuffleArray(options);
+        document.getElementById('button1').textContent = options[0];
+        document.getElementById('button2').textContent = options[1];
+        document.getElementById('button3').textContent = options[2];
+        document.getElementById('button4').textContent = options[3];
+        currentCorrectIndex = options.indexOf(correctTranslation[0]);
+    }
+
+    function selectTranslation(selectedIndex) {
+        let correct = selectedIndex === currentCorrectIndex;
+        addResultToTable(keys[currentKeyIndex], `${translationsMap[keys[currentKeyIndex]][0]}`, correct);
+        if (!correct) {
+            speak(`${keys[currentKeyIndex]}... ${translationsMap[keys[currentKeyIndex]][0]}`, 'de-DE', 'pl-PL');
+        }
+        correct ? correctCount++ : incorrectCount++;
+        currentKeyIndex++;
+        updateProgressBars();
+        nextWord();
+    }
+
+    function addResultToTable(word, translation, correct) {
+        const row = document.createElement('tr');
+        if (!correct) {
+            row.className = 'incorrect';
+        }
+        const cellWord = document.createElement('td');
+        cellWord.textContent = word;
+        const cellTranslation = document.createElement('td');
+        cellTranslation.textContent = translation;
+
+        row.appendChild(cellWord);
+        row.appendChild(cellTranslation);
+        const tbody = document.getElementById('resultsTable').getElementsByTagName('tbody')[0];
+        if (tbody.firstChild) {
+            tbody.insertBefore(row, tbody.firstChild);
+        } else {
+            tbody.appendChild(row);
+        }
+    }
+
+    function updateProgressBars() {
+        const total = keys.length;
+        const correctBar = document.getElementById('correctBar');
+        const incorrectBar = document.getElementById('incorrectBar');
+
+        let correctPercentage = (correctCount / total) * 100;
+        let incorrectPercentage = (incorrectCount / total) * 100;
+
+        correctBar.style.width = correctPercentage + '%';
+        incorrectBar.style.width = incorrectPercentage + '%';
+        correctBar.textContent = correctPercentage.toFixed(0) + '%';
+        incorrectBar.textContent = incorrectPercentage.toFixed(0) + '%';
+    }
+
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    function speak(text, firstLang, secondLang=null) {
+        const synth = window.speechSynthesis;
+        if (!secondLang) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = firstLang;
+            synth.speak(utterance);
+        } else {
+            let parts = text.split('... ');
+            const utterance1 = new SpeechSynthesisUtterance(parts[0]);
+            utterance1.lang = firstLang;
+            const utterance2 = new SpeechSynthesisUtterance(parts[1]);
+            utterance2.lang = secondLang;
+            synth.speak(utterance1);
+            synth.speak(utterance2);
+        }
+    }
+
+    function handleArrowKeys(event) {
+        const currentButton = document.activeElement;
+        const buttons = Array.from(document.querySelectorAll('button'));
+        let currentIndex = buttons.indexOf(currentButton);
+
+        if (event.key === "ArrowDown") {
+            currentIndex++;
+            if (currentIndex >= buttons.length) currentIndex = 0;
+            buttons[currentIndex].focus();
+            event.preventDefault();
+        } else if (event.key === "ArrowUp") {
+            currentIndex--;
+            if (currentIndex < 0) currentIndex = buttons.length - 1;
+            buttons[currentIndex].focus();
+            event.preventDefault();
+        }
+    }
+
+    document.getElementById('addCalendarEvent').addEventListener('click', function() {
+        const timeSpent = secondsElapsed;  // Time spent in seconds
+        addEventToCalendar(timeSpent);
+    });
+
+    function addEventToCalendar(duration) {
+        const now = new Date();
+        const endTime = now.toISOString().replace(/-|:|\.\d\d\d/g,"");
+        now.setSeconds(now.getSeconds() - duration);
+        const startTime = now.toISOString().replace(/-|:|\.\d\d\d/g,"");
+
+        const title = `German Practice - ${Math.floor(duration / 60)} min`;
+        const description = 'German language practice session.';
+        const location = 'Home';
+        const calendarEvent = [
+            'BEGIN:VCALENDAR',
+            'VERSION:2.0',
+            'BEGIN:VEVENT',
+            'URL;VALUE=URI:https://www.example.com',
+            `DTSTART:${startTime}`,
+            `DTEND:${endTime}`,
+            `SUMMARY:${title}`,
+            `DESCRIPTION:${description}`,
+            `LOCATION:${location}`,
+            'STATUS:CONFIRMED',
+            'SEQUENCE:3',
+            'BEGIN:VALARM',
+            'TRIGGER:-PT10M',
+            'REPEAT:2',
+            'DURATION:PT15M',
+            'ACTION:DISPLAY',
+            'DESCRIPTION:Reminder',
+            'END:VALARM',
+            'END:VEVENT',
+            'END:VCALENDAR'
+        ].join('\r\n');
+
+        const blob = new Blob([calendarEvent], {type: 'text/calendar;charset=utf-8'});
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        const formattedDate = now.toISOString().slice(0, 19).replace(/-|:|T/g, "_");
+        link.download = `german-practice_${formattedDate}.ics`;
+        link.click();
+        URL.revokeObjectURL(url);
+    }
+</script>
+</body>
+</html>
