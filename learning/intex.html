@@ -152,9 +152,12 @@
             speak(word, 'de-DE');
         } else {
             document.getElementById('wordDisplay').value = "Quiz Completed!";
-            document.querySelectorAll('button').forEach(button => {
-                button.disabled = true;
-                button.classList.add('hidden');
+            const buttons = document.querySelectorAll('button');
+            buttons.forEach(button => {
+                if (button.id.startsWith("button")) {
+                    button.disabled = true;
+                    button.classList.add('hidden');
+                }
             });
             clearInterval(timerInterval);
         }
@@ -273,7 +276,7 @@
         const startTime = now.toISOString().replace(/-|:|\.\d\d\d/g,"");
 
         const title = `German Practice - ${Math.floor(duration / 60)} min`;
-        const description = 'German language practice session.';
+        const description = 'YouTube - German language practice session.';
         const location = 'Home';
         const calendarEvent = [
             'BEGIN:VCALENDAR',
@@ -303,7 +306,7 @@
         const link = document.createElement('a');
         link.href = url;
         const formattedDate = now.toISOString().slice(0, 19).replace(/-|:|T/g, "_");
-        link.download = `german-practice_${formattedDate}.ics`;
+        link.download = `german-practice-yt_${formattedDate}.ics`;
         link.click();
         URL.revokeObjectURL(url);
     }
