@@ -46,7 +46,10 @@
         }
         #bottomInputs {
             position: fixed;
-            bottom: 200px;
+            bottom: 190px;
+            background-color: #111;
+            margin-left: -10px;
+            padding: 10px;
             width: 460px;
             display: flex;
             justify-content: space-between;
@@ -182,10 +185,11 @@
         }
         map[originalWord].push(translationWord);
         localStorage.setItem('translationsMap', JSON.stringify(map));
-        updateDictionaryDisplay();
+        updateDictionaryDisplay(originalWord, map[originalWord]);
+        addHoverEffectToCaptionsForWord(originalWord, map[originalWord])
     }
 
-    function updateDictionaryDisplay() {
+    function setDictionaryDisplay() {
         const map = JSON.parse(localStorage.getItem('translationsMap')) || {};
         let displayText = '';
         const keys = Object.keys(map).reverse();
@@ -194,6 +198,13 @@
         }
         dictionaryDisplay.textContent = displayText;
     }
+
+    function updateDictionaryDisplay(original, translations) {
+        const newEntry = `${original} - ${translations.join(', ')}\n`;
+        const currentText = dictionaryDisplay.textContent;
+        dictionaryDisplay.textContent = newEntry + currentText;
+    }
+
 
     function decodeHtmlEntities(text) {
         const textarea = document.createElement('textarea');
@@ -217,6 +228,19 @@
         });
     }
 
+    function addHoverEffectToCaptionsForWord(original, translations) {
+        const captions = document.querySelectorAll('#captionContent text');
+        captions.forEach(caption => {
+            let captionHTML = caption.innerHTML;
+            const regex = new RegExp(`(?<![\\wß])${original}(?![\\wß])`, 'gi');
+            captionHTML = captionHTML.replace(regex, match => {
+                const translation = translations.join(', ');
+                return `<span class="translation-hover">${match}<span class="translation-tooltip">${translation}</span></span>`;
+            });
+            caption.innerHTML = decodeHtmlEntities(captionHTML);
+        });
+    }
+
     document.getElementById('buttonAdd').addEventListener('click', function () {
         const originalWord = document.getElementById('original').value.trim();
         const translationWord = document.getElementById('meaning').value.trim();
@@ -224,7 +248,6 @@
             saveToLocalStorage(originalWord, translationWord);
             document.getElementById('original').value = '';
             document.getElementById('meaning').value = '';
-            addHoverEffectToCaptions();
         }
     });
 
@@ -267,7 +290,7 @@
         timer.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     }, 1000);
 
-    document.getElementById('stopTimer').addEventListener('click', function() {
+    document.getElementById('stopTimer').addEventListener('click', function () {
         if (timerInterval) {
             clearInterval(timerInterval);
             timerInterval = null;
@@ -299,6 +322,7 @@
 
                             setInterval(highlightCurrentCaption, 1000);
                             addHoverEffectToCaptions();
+                            setDictionaryDisplay();
                         })
                         .catch(error => {
                             document.getElementById('captionContent').textContent = 'Error fetching caption data: ' + error.message;
@@ -313,9 +337,6 @@
             document.getElementById('captionContent').textContent = 'Error accessing YouTube captions: ' + error.message;
         }
 
-        updateDictionaryDisplay();
-        addHoverEffectToCaptions();
-
         document.getElementById('captionPanel').addEventListener('copy', function (event) {
             event.preventDefault();
             const selectedText = document.getSelection().toString();
@@ -328,34 +349,15 @@
 
     function addEventToCalendar(duration) {
         const now = new Date();
-        const endTime = now.toISOString().replace(/-|:|\.\d\d\d/g,"");
+        const endTime = now.toISOString().replace(/-|:|\.\d\d\d/g, "");
         now.setSeconds(now.getSeconds() - duration);
-        const startTime = now.toISOString().replace(/-|:|\.\d\d\d/g,"");
+        const startTime = now.toISOString().replace(/-|:|\.\d\d\d/g, "");
 
         const title = `YouTube - German Practice - ${Math.floor(duration / 60)} min`;
-        const description = 'YouTube - German language practice session.';
-        const location = 'Home';
         const calendarEvent = [
-            'BEGIN:VCALENDAR',
-            'VERSION:2.0',
-            'BEGIN:VEVENT',
-            'URL;VALUE=URI:https://www.example.com',
-            `DTSTART:${startTime}`,
-            `DTEND:${endTime}`,
-            `SUMMARY:${title}`,
-            `DESCRIPTION:${description}`,
-            `LOCATION:${location}`,
-            'STATUS:CONFIRMED',
-            'SEQUENCE:3',
-            'BEGIN:VALARM',
-            'TRIGGER:-PT10M',
-            'REPEAT:2',
-            'DURATION:PT15M',
-            'ACTION:DISPLAY',
-            'DESCRIPTION:Reminder',
-            'END:VALARM',
-            'END:VEVENT',
-            'END:VCALENDAR'
+            'BEGIN:VCALENDAR', 'VERSION:2.0', 'BEGIN:VEVENT',
+            `DTSTART:${startTime}`, `DTEND:${endTime}`, `SUMMARY:${title}`,
+            'END:VEVENT', 'END:VCALENDAR'
         ].join('\r\n');
 
         const blob = new Blob([calendarEvent], {type: 'text/calendar;charset=utf-8'});
@@ -368,7 +370,7 @@
         URL.revokeObjectURL(url);
     }
 
-    document.getElementById('addToCalendar').addEventListener('click', function() {
+    document.getElementById('addToCalendar').addEventListener('click', function () {
         const duration = (Date.now() - startTime) / 1000;
         addEventToCalendar(duration);
     });
